@@ -20,7 +20,7 @@ class SimilaritySearchEngine:
     https://wangzwhu.github.io/home/file/acmmm-t-part3-ann.pdf, or https://www.pinecone.io/learn/vector-database/.
 
     Uses spaCy (https://spacy.io/) to generate the embedding vectors for documents,
-    using the precomputed word embeddings that comes with the package. Using, e.g.,
+    using the precomputed word embeddings that come with the package. Using, e.g.,
     SentenceTransformers (https://www.sbert.net/index.html), transformers (https://github.com/huggingface/transformers),
     or UForm (https://github.com/unum-cloud/uform) would have been plausible alternatives.
 
