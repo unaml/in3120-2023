@@ -123,3 +123,5 @@ In addition to code for the programming assignments, this repository also contai
 * [`papers`](papers/): Various papers that supplement the textbook and that are used in this course.
 * [`slides`](slides/): Slides that are used as part of the lectures.
 * [`exams`](exams/): Final exams from previous years, including rough solution sketches.
+
+Lastly, some notes are available regarding [administrative information](./administrivia.md) about the course, plus some [background context](./notes.md) about the course.
