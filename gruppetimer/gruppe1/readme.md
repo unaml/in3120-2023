@@ -8,7 +8,7 @@ Typisk vil første del gå med til repetisjon og gjennomgang av pensum, mens and
 
 ## Kontakt og interaktivitet
 
-Timene holder av [oliverrj](https://personer.uio.no/oliverrj), og utenfor seminarene kan jeg når som helst nås i [mattermost](https://mm.uio.no).
+Timene holdes av [oliverrj](https://personer.uio.no/oliverrj), og utenfor seminarene kan jeg når som helst nås i [mattermost](https://mm.uio.no).
 
 Dersom du har ønsker, innspill eller feedback har jeg et anonymt Nettskjema som vil stå og rulle gjennom semesteret: https://nettskjema.no/a/soketekgr1
 
