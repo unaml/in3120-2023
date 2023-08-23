@@ -1,1 +1,17 @@
-Ressurser for gruppe 1
+# Gruppe 1
+
+Velkommen til gruppe 1! :wave:
+
+Timene våre foregår på [Chill i 3.etg på Ole Johan Dahls hus](https://link.mazemap.com/7b0omtrE) fredager kl 10:15 - 12.
+
+Typisk vil første del gå med til repetisjon og gjennomgang av pensum, mens andre halvdel vil gå i oblighjelp.
+
+## Kontakt og interaktivitet
+
+Timene holder av [oliverrj](https://personer.uio.no/oliverrj), og utenfor seminarene kan jeg når som helst nås i [mattermost](https://mm.uio.no).
+
+Dersom du har ønsker, innspill eller feedback har jeg et anonymt Nettskjema som vil stå og rulle gjennom semesteret: https://nettskjema.no/a/soketekgr1
+
+## Ukevis opplegg
+
+1. [Introduksjon: indekser og postinglister](./uke1_intro)
