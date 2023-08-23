@@ -1,6 +1,6 @@
 # Assignment A
 
-**Deadline:** TBA
+**Deadline:** 2023-09-15
 
 The purpose of this assignment is to build a simple in-memory inverted index and show how to merge posting lists.
 
