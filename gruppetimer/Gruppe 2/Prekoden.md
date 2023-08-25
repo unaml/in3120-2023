@@ -1,6 +1,6 @@
 # Prekoden
 
-For å løse obligene, er dere forventet å endre noen utvalgte filer i [repoet, (ordne en link her)]. Her er det mye kode, og det kan virke skummelt ved første øyekast. Dere skal derimot ikke endre mange filer per innlevering, ofte bare en eller to. Det er heller ikke særlig mye kode som skal skrives, da målet heller er å skrive den "riktig" koden :)
+For å løse obligene, er dere forventet å endre noen utvalgte filer i [repoet](https://github.com/aohrn/in3120-2023/tree/main/in3120). Her er det mye kode, og det kan virke skummelt ved første øyekast. Dere skal derimot ikke endre mange filer per innlevering, ofte bare en eller to. Det er heller ikke særlig mye kode som skal skrives, da målet heller er å skrive den "riktig" koden :)
 
 Etter hver innlevering kan/bør man kjøre git pull, da foreleser vil publisere løsningsforslaget (integrert i repoet). Dermed vil du alltid ha et så godt som mulig utgangspunkt før hver innlevering, og vil ikke ha et dårligere utgangspunkt for f.eks. [Assignment B](https://github.com/aohrn/in3120-2023/blob/main/assignment-b.md) om du leverte en halv-perfekt [Assignment A](https://github.com/aohrn/in3120-2023/blob/main/assignment-a.md).
 
