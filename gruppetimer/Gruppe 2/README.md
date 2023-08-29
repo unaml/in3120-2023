@@ -8,4 +8,4 @@ Ellers kan jeg også nås på mail (sergeyj@ifi.uio.no) og Mattermost (sergeyj).
 
 ### Oversikt
 
-Uke 1 - Diverse indekser og boolean retrieval
+Uke 1 - [Diverse indekser og boolean retrieval](https://github.com/aohrn/in3120-2023/blob/main/gruppetimer/Gruppe%202/Uke%2001/README.md)
