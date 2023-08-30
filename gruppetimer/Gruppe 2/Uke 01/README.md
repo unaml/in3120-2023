@@ -79,9 +79,19 @@ Her er to objektive måter å måle dette på:
 
 Ofte ønsker vi seg en mellomting, og selve informasjonsbehovet bestemmer gjerne hva som er et akseptabel forhold.
 
-### Hvordan søker vi egentlig gjennom weben?
+### Hva er en "posting"?
 
-Moderne søkesystemer benytter en _invertert indeks_. Den enkleste typen er bare en mapping fra termer i en ordbok til _posting lists_. En posting list er en liste med postings. En posting kan bestå av mange ting, for eksempel IDen til et dokument:
+En posting sier noe om forholdet mellom en **term** og et **dokument**. En posting kan inneholde ting som
+
+- dokument-ID (hvilket dokument det er snakk om)
+- frekvens (hvor mange ganger termen forekommer i dokumentet)
+- posisjon (nøyaktig hvor termen forekommer i dokumentet)
+
+I obligene jobber vi med [posting.py](https://github.com/aohrn/in3120-2023/blob/main/in3220/posting.py). Den klassen tar vare på to instansvariabler: dokument-ID og frekvens.
+
+### Hva er en "invertert indeks"?
+
+Moderne søkesystemer benytter en _invertert indeks_. Den tar vare på en ordbok med termer, og lister med postings som er relevante for hver term. Hver term mapper nemlig til en liste med postinger. Den enkleste typen postinger sier gjerne bare hvilket dokument termen forekommer i:
 
 ```python
 invertert_indeks = {
@@ -93,7 +103,7 @@ invertert_indeks = {
 
 I eksemplet over, forekommer termen "søketek" i dokumentene med ID 1, 3, 7, 12 og 23.
 
-Vi kan også fylle dem med enda mer data, f.eks. hvor mange ganger de forekommer i hvert dokument:
+Vi kan som sagt også fylle dem med enda mer data, f.eks. hvor mange ganger de forekommer i hvert dokument:
 
 ```python
 invertert_indeks_med_frekvens = {
@@ -122,7 +132,7 @@ I eksemplet over, forekommer termen "søketek" 4 ganger i dokumentet med ID 1, 4
 
 Hvis vi søker etter "søketek" i en søkemotor som benytter den inverterte indeksen over, vil det være naturlig å få opp dokumentet med ID 3 før dokumentet med ID 7, siden søkeordet forekommer 42 flere ganger i førstnevnte.
 
-Vi kan også legge inn _hvor_ i dokumentet den ligger, f.eks. at "søketek" forekommer i tittelen, eller at "søketek" er det femte og tiende ordet i dokumentet, osv. osv. Det er egentlig ingen begrensning på hvor mye data du kan pakke inn i en posting.
+Vi kan også legge inn _hvor_ i dokumentet den ligger, f.eks. at "søketek" forekommer i tittelen, eller at "søketek" er det femte og tiende ordet i dokumentet, osv. osv. Det er egentlig ingen begrensning på hvor mye info du kan pakke inn i en posting.
 
 ### Vil ikke ord som "er" forekomme i kjempemange dokumenter?
 
