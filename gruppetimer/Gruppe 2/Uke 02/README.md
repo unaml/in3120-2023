@@ -307,7 +307,7 @@ Til slutt sorterer vi dem alfabetisk
 - na, 4
 - nana, 2
 
-En enkel eksempelimplementasjon finner dere [her] (link). Siden arrayenes er sortert alfabetisk, kan vi anvende binærsøk på dem, som gjør at vi finner eventuelle substringer og deres offset inn i teksten/ordet i O(log n), som er veldig bra!
+En enkel eksempelimplementasjon finner dere [her](https://github.com/aohrn/in3120-2023/blob/main/gruppetimer/Gruppe%202/Uke%2002/suffixarray.py). Siden arrayenes er sortert alfabetisk, kan vi anvende binærsøk på dem, som gjør at vi finner eventuelle substringer og deres offset inn i teksten/ordet i O(log n), som er veldig bra!
 
 ## Ukas bok
 
