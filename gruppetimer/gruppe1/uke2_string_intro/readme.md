@@ -1,3 +1,5 @@
 # Uke 2
 
-Menti og ressurser vil lastes opp her post factum.
+Se [Menti](./menti.pdf) for en oppsummering av ukas viktigste saker.
+
+Husk deadline for oblig A 2023-09-15!
