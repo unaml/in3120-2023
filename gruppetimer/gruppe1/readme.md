@@ -16,3 +16,5 @@ Dersom du har ønsker, innspill eller feedback har jeg et anonymt Nettskjema som
 
 1. [Introduksjon: indekser og postinglister](./uke1_intro)
 1. [Strenger 1: tries og suffix arrays](./uke2_string_intro)
+1. [Strenger 2: Aho-Corasick og oblighjelp](./uke3_string_obligA)
+1. [TBD: Tema for uke 4 er foreløpig uklart, men det er repetisjonsforelesning :D](./uke4)
