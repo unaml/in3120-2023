@@ -250,12 +250,13 @@ Vi bryter korpuset opp i blokker, som er såpass store at vi har plass til én b
 
 Den grunnleggende idéen er:
 
-1. Vi leser én og én blokk (med dokumenter) fra disken
+1. Vi leser én blokk (med dokumenter) fra disken
 2. Tokeniser dokumentene
-3. Opprett postinger på formen (term, dokument-ID) helt til vi har laget en invertert indeks av blokken
-4. Skriv den tilbake til disken
+3. Opprett postinger på formen (term, dokument ID)
+4. Skriv dem tilbake til disken
+5. Gjenta steg 1 til vi har gjort dette med alle blokkene
 
-Når vi har gjort dette med alle blokkene, kan vi lese deler av indekser fra minnet, merge dem, og skrive dem tilbake, helt til vi har en fullstendig invertert indeks.
+Når vi har gjort dette med alle blokkene, kan vi bruke en flette sammen postinger fra ulike blokker, og få en invertert indeks.
 
 > Repetisjon: en **posting** sier noe om forholdet mellom en term og dokumentet det forekommer i. Det kan være så enkelt som IDen til dokumentet termen forekommer i, men også mer avansert, om vi ønsker det.
 
@@ -263,13 +264,25 @@ Eksemplet fra forelesningen viser hva som skjer når alle blokkene er skrevet ti
 
 ![blocked sort-based indexing](../images/bsbi.png)
 
-Den mest effektive måten å merge sammen postingene på er egentlig ikke en binær merge som vist over, men en såkalt _multi-way merge_, der vi merger fra alle blokkene (i hovedminnet) om gangen! Nøyaktig _hvordan_ dette foregår, er utenfor pensum :)
+Den mest effektive måten å flette sammen postingene på er egentlig ikke en binær merge som vist over, men en såkalt _multi-way merge_, der vi merger fra alle blokkene (i hovedminnet) om gangen! Nøyaktig _hvordan_ dette foregår, er utenfor pensum :)
 
 ### Single-pass in-memory indexing
 
-Som vi har snakket om tidligere, er det krevende å både lese og skrive til disken. Hvis vi har nok plass i hovedminnet, kan vi faktisk kjøre en annen variant.
+SPIMI fungerer veldig likt:
 
-Med SPIMI gjør vi det samem som sist: vi henter en blokk fra disken, og lager en invertert indeks ut av den. Men! Istedenfor å skrive den tilbake til disken, henter vi en ny blokk, lager en invertert indeks ut av den, og merger den inn i den vi allerede har. Så gjentar vi prosessen til vi står igjen med én stor og fin invertert indeks :)
+1. Bryt opp korpuset til blokker
+2. Vi leser én blokk (med dokumenter) fra disken
+3. Tokeniser dokumentene
+4. Lag en invertert indeks for dokumentene i blokken (uten å sortere postinglistene)
+5. Gjenta steg 2 til minnet er fullt
+6. Skriv alt tilbake til disk, og fortsett til vi har prosessert alle blokkene.
+
+Til slutt kan vi merge sammen de inverterte indeksene til én fullstendig en, og på et magisk vis vil postinglistene være sortert :)
+
+## Så hvilken er best?
+
+- **BSBI** hvis du har begrenset med minne (fordi vi leser en forutsigbar mengde data i hver iterasjon), eller når du avhenger av at termene prosesseres i sortert rekkefølge
+- **SPIMI** hvis du har mye minne, og ønsker færre disk-operasjoner (fordi vi bare skriver tilbake til disken når vi _må_)
 
 ## Distribuert indexing
 
@@ -323,12 +336,47 @@ hovedminnet = [index1]
 disken = [index2, index3, ...]
 ```
 
-På et tidspunkt derimot, vil index1 bli for stor til å ligge i hovedminnet!
+På et tidspunkt derimot, vil index1 bli for stor til å ligge i hovedminnet! Da skal vi i utgangspunktet skrive den til disken. Vi overlater en del av den i hovedminnet slik at vi har noe å jobbe med, før vi legger den på disken.
+
+Hvis disken er tom, kan vi bare flytte det vi har i minnet til disken:
 
 ```python
-len(index1) # for stor
+hovedminnet = [index] # len of 300
+disk = []
+
+if disk is empty:
+    move 256 of index to disk
 ```
 
-Da skal vi i utgangspunktet skrive den til disken. Vi overlater en del av den i hovedminnet slik at vi har noe å jobbe med, før vi legger den på disken.
+Nå har vi
 
-Om disken var tom, ville vi bare lagt den der. Men siden vi allerede har andre indekser på disken, må vi merge dem. Vi merger først index1 og index2. Deretter merger vi resultatet av dem med index3. Slik går vi helt til vi ikke har flere indekser å merge på disken.
+```python
+hovedminnet = [det_som_er_igjen_av_index] # len of 44
+disk = [det_vi_overførte_til_disk] # len of 256
+```
+
+Hvis vi har dette scenarioet:
+
+```python
+hovedminnet = [Indeks()] # len of 300
+disk = [Indeks(), Indeks(), Indeks()] # len of 256, 512, 2048
+```
+
+så merger vi først `hovedminnet[0]` med `disk[0]`, og siden resultatet er like stort som `disk[1]`, så merger vi dem og. Slik fortsetter vi inntil vi ikke lenger kan merge resultatet med det neste. Tanken er noe ala dette:
+
+```python
+hovedminnet = [Indeks()] # len of 300
+disk = [Indeks(), Indeks(), Indeks()] # len of 256, 512, 2048
+
+-> overfør 256 fra index1 til disk[0]
+
+hovedminnet = [Indeks()] # len of 44
+disk = [Indeks(), Indeks(), Indeks()] # len of 512, 512, 2048
+
+-> siden len(disk[0]) == len(disk[1]), merge dem
+
+hovedminnet = [Indeks()] # len of 44
+disk = [Indeks(), Indeks()] # len of 1024, 2048
+
+-> siden len(disk[0]) != len(disk[1]), kan vi ikke merge videre
+```

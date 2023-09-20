@@ -239,8 +239,8 @@ term: 34, 178, 291, 453
 2. Finn gjennomsnittet: (34+144+113+162) / 4 = 113
 3. Rund gjennomsnittet ned til nærmeste "power of two". 2^7 = 128 er større enn 113, mens 2^6 = 64 er mindre, så den "vinner". Vi sier at `b=64`
 4. For hver `x` i lista skal vi nå finne to ting:
-   1. (`x`-1) / `b`
-   2. (`x`-1) % `b`
+   1. (`x`-1) / `b` (i unær. hvis resultatet ikke er 0, legg på en ekstra 0 på slutten)
+   2. (`x`-1) % `b` (i binær)
    - Dette gir oss [0 100001, 110 001111, 10 110000, 110 100001]
 
 En av de største fordelene med Rice coding, er at den er såpass enkel å implementere!
