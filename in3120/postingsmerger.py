@@ -25,7 +25,24 @@ class PostingsMerger:
         The posting lists are assumed sorted in increasing order according
         to the document identifiers.
         """
-        raise NotImplementedError("You need to implement this as part of the assignment.")
+
+        # Start at the head.
+        current1 = next(p1, None)
+        current2 = next(p2, None)
+
+        # We're doing an AND, so we can abort as soon as we exhaust one of
+        # the posting lists.
+        while current1 and current2:
+
+            # Increment the smallest one. Yield if we have a match.
+            if current1.document_id == current2.document_id:
+                yield current1
+                current1 = next(p1, None)
+                current2 = next(p2, None)
+            elif current1.document_id < current2.document_id:
+                current1 = next(p1, None)
+            else:
+                current2 = next(p2, None)
 
     @staticmethod
     def union(p1: Iterator[Posting], p2: Iterator[Posting]) -> Iterator[Posting]:
@@ -36,4 +53,31 @@ class PostingsMerger:
         The posting lists are assumed sorted in increasing order according
         to the document identifiers.
         """
-        raise NotImplementedError("You need to implement this as part of the assignment.")
+
+        # Start at the head.
+        current1 = next(p1, None)
+        current2 = next(p2, None)
+
+        # We're doing an OR. First handle the case where neither posting
+        # list is exhausted.
+        while current1 and current2:
+
+            # Yield the smallest one.
+            if current1.document_id == current2.document_id:
+                yield current1
+                current1 = next(p1, None)
+                current2 = next(p2, None)
+            elif current1.document_id < current2.document_id:
+                yield current1
+                current1 = next(p1, None)
+            else:
+                yield current2
+                current2 = next(p2, None)
+
+        # At least one of the lists are exhausted. Yield the remaining tail(s), if any.
+        if current1:
+            yield current1
+            yield from p1
+        if current2:
+            yield current2
+            yield from p2
