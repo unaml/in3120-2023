@@ -62,18 +62,11 @@ class InMemoryInvertedIndex(InvertedIndex):
     compression is currently not supported.
     """
 
-    def __init__(
-        self,
-        corpus: Corpus,
-        fields: Iterable[str],
-        normalizer: Normalizer,
-        tokenizer: Tokenizer,
-        compressed: bool = False,
-    ):
+    def __init__(self, corpus: Corpus, fields: Iterable[str], normalizer: Normalizer, tokenizer: Tokenizer, compressed: bool = False):
         self.__corpus = corpus
         self.__normalizer = normalizer
         self.__tokenizer = tokenizer
-        self.__posting_lists: List[PostingList] = []
+        self.__posting_lists : List[PostingList] = []
         self.__dictionary = InMemoryDictionary()
         self.__build_index(fields, compressed)
 

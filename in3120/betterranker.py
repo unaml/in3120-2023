@@ -24,9 +24,9 @@ class BetterRanker(Ranker):
         self._document_id = None
         self._corpus = corpus
         self._inverted_index = inverted_index
-        self._dynamic_score_weight = 1.0  # TODO: Make this configurable.
-        self._static_score_weight = 1.0  # TODO: Make this configurable.
-        self._static_score_field_name = "static_quality_score"  # TODO: Make this configurable.
+        self._dynamic_score_weight = 1.0
+        self._static_score_weight = 1.0
+        self._static_score_field_name = "static_quality_score"
 
     def reset(self, document_id: int) -> None:
         raise NotImplementedError("You need to implement this as part of the assignment.")
