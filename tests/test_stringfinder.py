@@ -31,12 +31,15 @@ class TestStringFinder(unittest.TestCase):
 
     def test_scan_matches_and_ranges(self):
         dictionary = in3120.Trie()
-        dictionary.add(["eple", "drue", "appelsin", "drue appelsin rosin banan papaya"], self.__tokenizer)
+        dictionary.add(["eple", "drue", "appelsin",
+                       "drue appelsin rosin banan papaya"], self.__tokenizer)
         finder = in3120.StringFinder(dictionary, self.__tokenizer)
-        results = list(finder.scan("et eple og en drue   appelsin  rosin banan papaya frukt"))
+        results = list(finder.scan(
+            "et eple og en drue   appelsin  rosin banan papaya frukt"))
         self.assertListEqual(results, [{'match': 'eple', 'range': (3, 7)},
                                        {'match': 'drue', 'range': (14, 18)},
-                                       {'match': 'appelsin', 'range': (21, 29)},
+                                       {'match': 'appelsin',
+                                           'range': (21, 29)},
                                        {'match': 'drue appelsin rosin banan papaya', 'range': (14, 49)}])
 
     def test_uses_yield(self):
@@ -53,9 +56,12 @@ class TestStringFinder(unittest.TestCase):
         trie = in3120.Trie()
         trie.add((d["body"] or "" for d in mesh), self.__tokenizer)
         finder = in3120.StringFinder(trie, self.__tokenizer)
-        self.__scan_text_verify_matches(finder, cran[0]["body"], ["wing", "wing"])
-        self.__scan_text_verify_matches(finder, cran[3]["body"], ["solutions", "skin", "friction"])
-        self.__scan_text_verify_matches(finder, cran[1254]["body"], ["electrons", "ions"])
+        self.__scan_text_verify_matches(
+            finder, cran[0]["body"], ["wing", "wing"])
+        self.__scan_text_verify_matches(finder, cran[3]["body"], [
+                                        "solutions", "skin", "friction"])
+        self.__scan_text_verify_matches(
+            finder, cran[1254]["body"], ["electrons", "ions"])
 
 
 if __name__ == '__main__':

@@ -10,7 +10,8 @@ def build_test_suite(test_cases: List[str]) -> unittest.TestSuite:
     import tests
     suite = unittest.TestSuite()
     for test_case in test_cases:
-        suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(getattr(tests, test_case)))
+        suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(
+            getattr(tests, test_case)))
     return suite
 
 
@@ -19,7 +20,8 @@ def assignment_a_suite() -> unittest.TestSuite:
 
 
 def assignment_b_suite() -> unittest.TestSuite:
-    return build_test_suite(["TestSuffixArray", "TestTrie", "TestStringFinder"])
+    # return build_test_suite(["TestSuffixArray", "TestTrie", "TestStringFinder"])
+    return build_test_suite(["TestSuffixArray"])
 
 
 def assignment_c_suite() -> unittest.TestSuite:

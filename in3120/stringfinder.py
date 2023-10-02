@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from typing import Iterator, Dict, Any 
+from typing import Iterator, Dict, Any
 from .tokenizer import Tokenizer
 from .trie import Trie
 
@@ -36,4 +36,35 @@ class StringFinder:
         support for leftmost-longest matching (instead of reporting all matches), and support for lemmatization
         or similar linguistic variations.
         """
-        raise NotImplementedError("You need to implement this as part of the assignment.")
+        # Initialize a list to store current states.
+        current_states = []
+
+        # Iterate over the tokens and their corresponding start and stop positions.
+        for token, (start, stop) in (self.__tokenizer).tokens(buffer):
+            # Set a base state from the root of the trie tree
+            current_states.append((self.__trie, start))
+
+            # Update the current trie in all states, preserve starting position.
+            # Also remove states where consumption is not possible
+            for trie, s_start in current_states:
+                new_trie = trie.consume(token)
+                if new_trie is not None:
+                    current_states.append((new_trie, s_start))
+
+            # Check if current states are in a final state
+            # Find the appropriate slice of the buffer that matches the token. Then tokinize and yield result
+            for s, s_start in current_states:
+                if s.is_final():
+                    matched_string = ' '.join(
+                        self.__tokenizer.strings(buffer[s_start:stop]))
+                    yield {"match": matched_string, "range": (s_start, stop)}
+
+            # Remove states where consumption of a single space isn't possible.
+            new_states = []
+            for state in current_states:
+                trie, s_start = state
+                new_trie = trie.consume(' ')
+                if new_trie is not None:
+                    new_states.append((new_trie, s_start))
+
+            current_states = new_states

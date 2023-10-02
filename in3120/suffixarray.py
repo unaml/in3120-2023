@@ -5,6 +5,7 @@ from typing import Any, Dict, Iterator, Iterable, Tuple, List
 from .corpus import Corpus
 from .normalizer import Normalizer
 from .tokenizer import Tokenizer
+from .sieve import Sieve
 
 
 class SuffixArray:
@@ -20,35 +21,101 @@ class SuffixArray:
         self.__corpus = corpus
         self.__normalizer = normalizer
         self.__tokenizer = tokenizer
-        self.__haystack: List[Tuple[int, str]] = []  # The (<document identifier>, <searchable content>) pairs.
-        self.__suffixes: List[Tuple[int, int]] = []  # The sorted (<haystack index>, <start offset>) pairs.
-        self.__build_suffix_array(fields)  # Construct the haystack and the suffix array itself.
+        # The (<document identifier>, <searchable content>) pairs.
+        self.__haystack: List[Tuple[int, str]] = []
+        # The sorted (<haystack index>, <start offset>) pairs.
+        self.__suffixes: List[Tuple[int, int]] = []
+        # Construct the haystack and the suffix array itself.
+        self.__build_suffix_array(fields)
 
     def __build_suffix_array(self, fields: Iterable[str]) -> None:
+        haystack = self.__haystack
+        suffixes = self.__suffixes
+
+        for docid, doc in enumerate(self.__corpus):
+            concatenated_text = ""  # Initialize concatenated_text for each document
+            for field in fields:
+                text = doc.get_field(field, "")
+                concatenated_text += "".join(text)
+
+            tokens = self.__tokenizer.strings(
+                self.__normalize(concatenated_text))
+            normalized_and_tokenized = " ".join(tokens)
+            haystack.append((docid, normalized_and_tokenized))
+
+        # Create suffixes for each word
+        for docid, text in haystack:
+            words = text.split()
+            offset = 0
+            for i, word in enumerate(words):
+                suffixes.append((docid, offset))
+                offset += len(word) + 1
+
+        suffixes.sort(key=lambda x: self.__get_item(x))
+        """ for i in haystack:
+            print("haystack", haystack)
+        print("suffixes", suffixes)
+        for i in suffixes:
+            print("suffixes", self.__get_item(i))"""
+
+    """
+        haystack = [
+            [docid, self.__normalize(self.__tokenizer.tokens(" ".join([doc.get_field(field, "")
+                                                                       for field in fields])))]
+            for docid, doc in enumerate(self.__corpus)
+        ]
+        suffixes = sorted([(docid, i)
+                          for docid, text in haystack for i in range(len(text))])
+
+        # Store the suffix array in self.__suffixes
+        self.__suffixes = suffixes
+        hayindex,start = element
+        doc, string = self.hsystdsck(hayindx)
+        substring = string[start:]
+        return substring
         """
-        Builds a simple suffix array from the set of named fields in the document collection.
-        The suffix array allows us to search across all named fields in one go.
-        """
-        raise NotImplementedError("You need to implement this as part of the assignment.")
+
+    def __get_item(self, element: Tuple[int, int]) -> str:
+        # Separate tuple into two variables
+        hayindex, start = element
+
+        # If hayindex is between 0 and the length of the haystack, find its respective string based on input
+        if 0 <= hayindex < len(self.__haystack):
+            _, string = self.__haystack[hayindex]
+            substring = string[start:]
+            return substring
+        else:
+            return ""
 
     def __normalize(self, buffer: str) -> str:
         """
         Produces a normalized version of the given string. Both queries and documents need to be
         identically processed for lookups to succeed.
         """
-        raise NotImplementedError("You need to implement this as part of the assignment.")
+        # also canonicalize, but make sure you dont get double spacee, but join on spaces
+        return self.__normalizer.canonicalize(self.__normalizer.normalize(buffer))
 
     def __binary_search(self, needle: str) -> int:
-        """
-        Does a binary search for a given normalized query (the needle) in the suffix array (the haystack).
-        Returns the position in the suffix array where the normalized query is either found, or, if not found,
-        should have been inserted.
+        low = 0
+        high = len(self.__suffixes) - 1
+        pos = -1
 
-        Kind of silly to roll our own binary search instead of using the bisect module, but seems needed
-        prior to Python 3.10 due to how we represent the suffixes via (index, offset) tuples. Version 3.10
-        added support for specifying a key.
-        """
-        raise NotImplementedError("You need to implement this as part of the assignment.")
+        # If given query is empty, return -1
+        if needle == "":
+            return pos
+
+        # Finds first occurence instead of the typical binary search way, this makes it easier for while loop in evaluate
+        while low <= high:
+            mid = (low + high) // 2
+            substring = self.__get_item(self.__suffixes[mid])
+            if substring.startswith(needle):
+                pos = mid
+                high = mid - 1
+            elif substring < needle:
+                low = mid + 1
+            else:
+                high = mid - 1
+        return pos
 
     def evaluate(self, query: str, options: dict) -> Iterator[Dict[str, Any]]:
         """
@@ -66,4 +133,33 @@ class SuffixArray:
         The results yielded back to the client are dictionaries having the keys "score" (int) and
         "document" (Document).
         """
-        raise NotImplementedError("You need to implement this as part of the assignment.")
+        dictionary = []
+
+        normalized_query = self.__normalize(query)
+        position = self.__binary_search(normalized_query)
+
+        max_hit_count = options.get("hit_count", float("inf"))
+        sieve = Sieve(max_hit_count)
+
+        normalized_query = self.__normalize(query)
+        position = self.__binary_search(normalized_query)
+        while (position < len(self.__suffixes)):
+            if self.__get_item(self.__suffixes[position]).startswith(normalized_query):
+                the_suffix = self.__suffixes[position]
+                docid, _ = self.__haystack[the_suffix[0]]
+                doc_text = self.__haystack[the_suffix[0]][1]
+                # Calculate the score for this specific document
+                doc_score = doc_text.count(query)
+                dictionary.append(
+                    {"score": doc_score, "document": docid})
+                sieve.sift(doc_score, docid)
+                position += 1
+                if position >= len(self.__suffixes):
+                    break
+            else:
+                break
+
+        dictionary.sort(key=lambda x: x["score"], reverse=True)
+
+        for doc_score, document in sieve.winners():
+            yield {"score": doc_score, "document": self.__corpus.get_document(document)}
