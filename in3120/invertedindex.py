@@ -66,7 +66,7 @@ class InMemoryInvertedIndex(InvertedIndex):
         self.__corpus = corpus
         self.__normalizer = normalizer
         self.__tokenizer = tokenizer
-        self.__posting_lists : List[PostingList] = []
+        self.__posting_lists: List[PostingList] = []
         self.__dictionary = InMemoryDictionary()
         self.__build_index(fields, compressed)
 
@@ -74,37 +74,56 @@ class InMemoryInvertedIndex(InvertedIndex):
         return str({term: self.__posting_lists[term_id] for (term, term_id) in self.__dictionary})
 
     def __build_index(self, fields: Iterable[str], compressed: bool) -> None:
-        frequency_counter = Counter()
-        posting_lists = self.__posting_lists
-        for docid, doc in enumerate(self.__corpus):
-            for field in fields:
-                text = doc.get_field(field, "")
-                tokens = self.get_terms(text)
-                for term in tokens:
-                    termid = self.__dictionary.add_if_absent(term)
-                    frequency_counter[termid] += 1
-            for termid in frequency_counter:
-                posting = Posting(docid, frequency_counter[termid])
-                while len(self.__posting_lists) <= termid:
-                    self.__posting_lists.append(InMemoryPostingList())
-                posting_lists[termid].append_posting(posting)
-            frequency_counter.clear()
+        for document in self.__corpus:
+
+            # Compute TF values for all unique terms in the document. Note that we
+            # currently don't keep track of which field each term occurs in.
+            # If we were to allow fielded searches (e.g., "find documents that
+            # contain 'foo' in the 'title' field") then we would have to keep
+            # track of that, either as a synthetic term in the dictionary
+            # (e.g., 'foo.title') or as extra data in the posting.
+            all_terms = itertools.chain.from_iterable(
+                self.get_terms(document.get_field(f, "")) for f in fields)
+            term_frequencies = Counter(all_terms)
+
+            for (term, term_frequency) in term_frequencies.items():
+
+                # Assign the term an identifier, if needed. First come, first serve.
+                term_id = self.__dictionary.add_if_absent(term)
+
+                # Locate the posting list for this term. Create it, if needed.
+                if term_id >= len(self.__posting_lists):
+                    assert term_id == len(self.__posting_lists)
+                    self.__posting_lists.append(
+                        CompressedInMemoryPostingList() if compressed else InMemoryPostingList())
+                posting_list = self.__posting_lists[term_id]
+
+                # Append the posting to the posting list. The posting lists
+                # must be kept sorted so that we can efficiently traverse and
+                # merge them when querying the inverted index.
+                posting_list.append_posting(
+                    Posting(document.document_id, term_frequency))
+
+        # Implementations may or may not need to tie up any loose ends.
+        for posting_list in self.__posting_lists:
+            posting_list.finalize_postings()
 
     def get_terms(self, buffer: str) -> Iterator[str]:
-        normalized_text = self.__normalizer.normalize(buffer)
-        tokens = self.__tokenizer.strings(normalized_text)
-        return tokens
+        # In a serious large-scale application there could be field-specific tokenizers.
+        # We choose to keep it simple here.
+        tokens = self.__tokenizer.strings(
+            self.__normalizer.canonicalize(buffer))
+        return (self.__normalizer.normalize(t) for t in tokens)
 
     def get_postings_iterator(self, term: str) -> Iterator[Posting]:
+        # Assume that everything fits in memory. This would not be the case in a serious
+        # large-scale application, even with compression.
         term_id = self.__dictionary.get_term_id(term)
-        if term_id is None:
-            return iter([])
-        else:
-            return self.__posting_lists[term_id].get_iterator()
+        return iter([]) if term_id is None else iter(self.__posting_lists[term_id])
 
     def get_document_frequency(self, term: str) -> int:
+        # In a serious large-scale application we'd store this number explicitly, e.g., as part of the dictionary.
+        # That way, we can look up the document frequency without having to access the posting lists
+        # themselves. Imagine if the posting lists don't even reside in memory!
         term_id = self.__dictionary.get_term_id(term)
-        if term_id is None:
-            return 0
-        else:
-            return self.__posting_lists[term_id].get_length()
+        return 0 if term_id is None else self.__posting_lists[term_id].get_length()
