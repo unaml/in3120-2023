@@ -19,3 +19,4 @@ Dersom du har ønsker, innspill eller feedback har jeg et anonymt Nettskjema som
 1. [Strenger 2: Aho-Corasick og oblighjelp](./uke3_string_obligA)
 1. [Liveprogging: Progging av pseudo-oblig-A + oblighjelp for B](./uke4)
 1. [Collection laws and relevance: Heaps' + Zipf's laws, TF-IDF, oblighjelp for B](./uke5_relevance)
+1. [Rocchio, query expansion, classification + oblighjelp for C](./uke6_rocchioClassification)
