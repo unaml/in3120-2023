@@ -42,7 +42,7 @@ Våre venner fra uke 1! Dette er såkalt "binær evaluering": resultatet er ente
 
 **Precision** er fraksjonen av hentede dokumenter som er relevante for brukeren. Formelen er
 
-> True positives / (True positives / False positives)
+> True positives / (True positives + False positives)
 
 Høy presisjon er foretrukket f.eks. når vi skal se en youtube-video til maten. Det er ikke så farlig at vi ikke fikk _alle_ de relevante videoene, siden vi bare rekker et par uansett.
 
@@ -50,7 +50,7 @@ For å øke presisjon kan man legge til termer i spørringen. For eksempel får 
 
 **Recall** er fraksjonen av relevante dokumenter i korpuset som ble hentet og vist til brukeren. Formelen er
 
-> True positives / (True positives / False negatives)
+> True positives / (True positives + False negatives)
 
 Høy recall er foretrukket f.eks. når vi skal gjøre forskning til PhDen vår. Vi ønsker _alle_ de relevante artiklene, og leser heller en ekstra irrelevant artikkel enn å risikere å glippe en veldig relevant en.
 
