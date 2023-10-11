@@ -12,4 +12,6 @@ Uke 1 - [Diverse indekser og boolean retrieval](https://github.com/aohrn/in3120-
 Uke 2 - [Parsing, wildcard queries, skip-pekere og suffix arrays](https://github.com/aohrn/in3120-2023/tree/main/gruppetimer/Gruppe%202/Uke%2002/README.md) \
 Uke 3 - [Ordbok, stave-hjelp-algoritmer og index construction](https://github.com/aohrn/in3120-2023/blob/main/gruppetimer/Gruppe%202/Uke%2003/README.md). Zoom-link [her](https://uio.zoom.us/j/69569267631) \
 Uke 4 - [Index compression](https://github.com/aohrn/in3120-2023/blob/main/gruppetimer/Gruppe%202/Uke%2004/README.md) \
-Uke 5 - [Ranked retrieval](https://github.com/aohrn/in3120-2023/blob/main/gruppetimer/Gruppe%202/Uke%2005/README.md)
+Uke 5 - [Ranked retrieval](https://github.com/aohrn/in3120-2023/blob/main/gruppetimer/Gruppe%202/Uke%2005/README.md) \
+Uke 6 - [Effektiv scoring](https://github.com/aohrn/in3120-2023/blob/main/gruppetimer/Gruppe%202/Uke%2006/README.md) \
+Uke 7 - [Evaluering av søkemotorer](https://github.com/aohrn/in3120-2023/blob/main/gruppetimer/Gruppe%202/Uke%2007/README.md)
