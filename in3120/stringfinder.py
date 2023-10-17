@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from typing import Iterator, Dict, Any
+from typing import Iterator, Dict, Any, List, Tuple
 from .tokenizer import Tokenizer
 from .trie import Trie
 
@@ -36,35 +36,37 @@ class StringFinder:
         support for leftmost-longest matching (instead of reporting all matches), and support for lemmatization
         or similar linguistic variations.
         """
-        # Initialize a list to store current states.
-        current_states = []
+        # The set of currently explored states. We represent a state as a node in the trie (that
+        # represents where in the trie we are after having consumed zero or more characters) plus
+        # an index (that represents the position into the original buffer where the state was "born".)
+        # The trie node is what we advance along the way, while the index is needed so that we know where
+        # we first started if/when a match is found.
+        live_states: List[Tuple[Trie, int]] = []
 
-        # Iterate over the tokens and their corresponding start and stop positions.
-        for token, (start, stop) in (self.__tokenizer).tokens(buffer):
-            # Set a base state from the root of the trie tree
-            current_states.append((self.__trie, start))
+        # Where did the previous token end? Assume that tokens are produced sorted in left-to-right
+        # order.
+        previous_end = -1
 
-            # Update the current trie in all states, preserve starting position.
-            # Also remove states where consumption is not possible
-            for trie, s_start in current_states:
-                new_trie = trie.consume(token)
-                if new_trie is not None:
-                    current_states.append((new_trie, s_start))
+        # Only consider matches that start on token boundaries.
+        for (string, (begin, end)) in self.__tokenizer.tokens(buffer):
 
-            # Check if current states are in a final state
-            # Find the appropriate slice of the buffer that matches the token. Then tokinize and yield result
-            for s, s_start in current_states:
-                if s.is_final():
-                    matched_string = ' '.join(
-                        self.__tokenizer.strings(buffer[s_start:stop]))
-                    yield {"match": matched_string, "range": (s_start, stop)}
+            # Inject a space for the currently live states? Some languages, e.g., Japanese
+            # or Chinese, don't use whitespace between tokens.
+            is_connected, previous_end = (previous_end > 0) and (
+                begin == previous_end), end
+            if not is_connected:
+                live_states = [(s.consume(" "), b) for (s, b) in live_states]
 
-            # Remove states where consumption of a single space isn't possible.
-            new_states = []
-            for state in current_states:
-                trie, s_start = state
-                new_trie = trie.consume(' ')
-                if new_trie is not None:
-                    new_states.append((new_trie, s_start))
+            # Consider this token a potential start for a match. Advance all
+            # currently live states. Then prune, since consuming more characters has
+            # probably killed off some states.
+            live_states.append((self.__trie, begin))
+            live_states = [(s.consume(string), b)
+                           for (s, b) in live_states if s]
+            live_states = [(s, b) for (s, b) in live_states if s]
 
-            current_states = new_states
+            # Report matches, if any, that end on the token we just consumed. Use the
+            # tokenizer to somewhat normalize the matches we emit.
+            for match_begin in (b for (s, b) in live_states if s.is_final()):
+                yield {"match": " ".join(self.__tokenizer.strings(buffer[match_begin:end])),
+                       "range": (match_begin, end)}
