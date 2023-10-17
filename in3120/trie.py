@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import annotations
-from typing import Optional, Iterable
+from typing import Dict, List, Optional, Iterable, Iterator
 from .tokenizer import Tokenizer
 
 
@@ -20,7 +20,7 @@ class Trie:
     """
 
     def __init__(self):
-        self.__children = {}
+        self.__children: Dict[str, Trie] = {}
 
     def __repr__(self):
         return repr(self.__children)
@@ -28,10 +28,10 @@ class Trie:
     def __add(self, string: str) -> None:
         assert 0 < len(string)
         trie = self
-        for c in string:
-            if c not in trie.__children:
-                trie.__children[c] = Trie()
-            trie = trie.__children[c]
+        for symbol in string:
+            if symbol not in trie.__children:
+                trie.__children[symbol] = Trie()
+            trie = trie.__children[symbol]
         trie.__children[""] = Trie()
 
     def add(self, strings: Iterable[str], tokenizer: Tokenizer) -> None:
@@ -48,13 +48,34 @@ class Trie:
         Consumes the given prefix, verbatim. If strings that have this prefix have been added to
         the trie, then the trie node corresponding to the prefix is returned. Otherwise, None is returned.
         """
-        trie = self
-        for c in prefix:
-            if c in trie.__children:
-                trie = trie.__children[c]
+        node = self
+        for symbol in prefix:
+            if symbol in node.__children:
+                node = node.__children[symbol]
             else:
                 return None
-        return trie
+        return node
+
+    def strings(self) -> Iterator[str]:
+        """
+        Yields all strings that are found in or below this node. For simple testing and debugging purposes.
+        The returned strings are emitted back in lexicographical order.
+        """
+        stack = [(self, "")]
+        while stack:
+            node, prefix = stack.pop()
+            if node.is_final():
+                yield prefix
+            for symbol, child in sorted(node.__children.items(), reverse=True):
+                stack.append((child, prefix + symbol))
+
+    def transitions(self) -> List[str]:
+        """
+        Returns the set of symbols that are valid outgoing transitions, i.e., the set of symbols that
+        when consumed by this node would lead to a valid child node. The returned transitions are
+        emitted back in lexicographical order.
+        """
+        return sorted(s for s in self.__children if s)
 
     def is_final(self) -> bool:
         """
