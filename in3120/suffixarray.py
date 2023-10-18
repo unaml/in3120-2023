@@ -62,7 +62,7 @@ class SuffixArray:
         for i in suffixes:
             print("suffixes", self.__get_item(i))"""
 
-    """
+        """
         haystack = [
             [docid, self.__normalize(self.__tokenizer.tokens(" ".join([doc.get_field(field, "")
                                                                        for field in fields])))]
@@ -101,7 +101,8 @@ class SuffixArray:
         identically processed for lookups to succeed.
         """
         # Tokenize and join to be robust to nuances in whitespace and punctuation.
-        tokens = self.__tokenizer.strings(self.__normalizer.canonicalize(buffer))
+        tokens = self.__tokenizer.strings(
+            self.__normalizer.canonicalize(buffer))
         return " ".join(self.__normalizer.normalize(t) for t in tokens)
 
     def __get_suffix1(self, i: int) -> str:
@@ -122,8 +123,7 @@ class SuffixArray:
         high = len(self.__suffixes) - 1
         pos = -1
 
-        """
-        Kind of silly to roll our own binary search instead of using the bisect module, but seems needed
+        """ Kind of silly to roll our own binary search instead of using the bisect module, but seems needed
         prior to Python 3.10 due to how we represent the suffixes via (index, offset) tuples. Version 3.10
         added support for specifying a key.
         """
@@ -175,7 +175,8 @@ class SuffixArray:
         # we no longer get a match. We expect a low number of matches for typical queries, and we process all the
         # matches below anyway. If we just wanted to count the number of matches without processing them, we
         # could instead of a linear scan do another binary search to locate where the range ends.
-        matches = itertools.takewhile(_is_match, range(where_start, len(self.__suffixes)))
+        matches = itertools.takewhile(
+            _is_match, range(where_start, len(self.__suffixes)))
 
         # Deduplicate. A document in the haystack might contain multiple occurrences of the needle.
         # Rank according to occurrence count, and emit in ranked order.

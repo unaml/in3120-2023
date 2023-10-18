@@ -3,10 +3,12 @@
 
 from collections import Counter
 from typing import Iterator, Dict, Any
+from collections import Counter
 from .sieve import Sieve
-from .ranker import Ranker
+from .ranker import Ranker, SimpleRanker
 from .corpus import Corpus
 from .invertedindex import InvertedIndex
+import sys
 
 
 class SimpleSearchEngine:
@@ -17,7 +19,7 @@ class SimpleSearchEngine:
     logically equivalent to the following predicate:
 
        (orange AND apple) OR (orange AND banana) OR (apple AND banana)
-       
+
     Note that N-of-M matching can be viewed as a type of "soft AND" evaluation, where the degree of match
     can be smoothly controlled to mimic either an OR evaluation (1-of-M), or an AND evaluation (M-of-M),
     or something in between.
@@ -44,4 +46,55 @@ class SimpleSearchEngine:
         N is inferred from the query via the "match_threshold" (float) option, and the maximum number of documents
         to return to the client is controlled via the "hit_count" (int) option.
         """
-        raise NotImplementedError("You need to implement this as part of the assignment.")
+        normalized_and_tokenized_query_terms = self.__inverted_index.get_terms(
+            query)
+        unique_terms = list(
+            Counter(normalized_and_tokenized_query_terms).items())
+
+        # Assign M
+        m = len(unique_terms)
+        # Assign N
+        n = max(1, min(m, int(options['match_threshold']*m)))
+        max_number_of_documents = options['hit_count']
+
+        posting_list = []
+        for term, _ in unique_terms:
+            postings = self.__inverted_index[term]
+            posting_list.append(postings)
+        all_cursors = [next(p, None) for p in posting_list]
+        active_cursors = [
+            cursor for cursor in all_cursors if cursor is not None]
+        sieve = Sieve(max_number_of_documents)
+        # Set frontier to 0, which is the variable that keeps track of similar doc ids
+
+        frontier = 0
+        while len(active_cursors) >= n:
+            lowest_id = sys.maxsize
+            for cursor in active_cursors:
+                if cursor.document_id < lowest_id:
+                    lowest_id = cursor.document_id
+                    frontier = 1
+                elif cursor.document_id == lowest_id:
+                    frontier += 1
+            if frontier >= n:
+                ranker.reset(lowest_id)
+                for term, postings in zip(unique_terms, all_cursors):
+                    current_term = term[0]
+                    multiplicity = term[1]
+                    if postings is not None and postings.document_id == lowest_id:
+                        ranker.update(current_term, multiplicity, postings)
+                score = ranker.evaluate()
+                sieve.sift(score, lowest_id)
+
+            cursor_indices = [i if (p is not None and p.document_id ==
+                                    lowest_id) else -1 for i, p in enumerate(all_cursors)]
+
+            for i, cursor in enumerate(all_cursors):
+                if cursor_indices[i] != -1:
+                    all_cursors[i] = next(posting_list[i], None)
+
+            active_cursors = [
+                cursor for cursor in all_cursors if cursor is not None]
+
+        for doc_score, document in sieve.winners():
+            yield {"score": doc_score, "document": self.__corpus.get_document(document)}
