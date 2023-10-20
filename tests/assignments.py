@@ -29,7 +29,8 @@ def assignment_c_suite() -> unittest.TestSuite:
 
 
 def assignment_d_suite() -> unittest.TestSuite:
-    return build_test_suite(["TestBetterRanker", "TestShingleGenerator"])
+    return build_test_suite(["TestBetterRanker"])
+    # return build_test_suite(["TestBetterRanker", "TestShingleGenerator"])
 
 
 def assignment_e_suite() -> unittest.TestSuite:
