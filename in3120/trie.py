@@ -32,6 +32,9 @@ class Trie:
     def __iter__(self):
         return self.strings()
 
+    def __getitem__(self, prefix: str):
+        return self.consume(prefix)
+
     def __add(self, string: str) -> None:
         assert 0 < len(string)
         trie = self

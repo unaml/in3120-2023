@@ -16,7 +16,7 @@ class TestTrie(unittest.TestCase):
         root = self.__root
         self.assertTrue(not root.is_final())
         self.assertIsNone(root.consume("snegle"))
-        node = root.consume("ab")
+        node = root["ab"]
         self.assertTrue(not node.is_final())
         node = node.consume("b")
         self.assertTrue(node.is_final())
