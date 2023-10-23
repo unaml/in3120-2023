@@ -25,6 +25,13 @@ class Trie:
     def __repr__(self):
         return repr(self.__children)
 
+    def __contains__(self, string: str):
+        descendant = self.consume(string)
+        return descendant is not None and descendant.is_final()
+
+    def __iter__(self):
+        return self.strings()
+
     def __add(self, string: str) -> None:
         assert 0 < len(string)
         trie = self

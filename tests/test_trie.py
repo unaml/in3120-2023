@@ -22,12 +22,21 @@ class TestTrie(unittest.TestCase):
         self.assertTrue(node.is_final())
         self.assertEqual(node, root.consume("abb"))
 
+    def test_containment(self):
+        self.assertTrue("ørret" in self.__root)
+        self.assertFalse("ørr" in self.__root)
+        self.assertTrue("abbor" in self.__root)
+        self.assertFalse("abborrrr" in self.__root)
+        child = self.__root.child("a")
+        self.assertTrue("bbor" in child)
+
     def test_dump_strings(self):
         root = in3120.Trie()
         root.add(["elle", "eller", "ellen", "hurra   for deg"], self.__tokenizer)
         self.assertListEqual(list(root.strings()), ["elle", "ellen", "eller", "hurra for deg"])
         node = root.consume("el")
         self.assertListEqual(list(node.strings()), ["le", "len", "ler"])
+        self.assertListEqual(list(node), ["le", "len", "ler"])
 
     def test_transitions(self):
         root = self.__root
