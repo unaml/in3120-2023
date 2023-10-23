@@ -61,7 +61,9 @@ class InMemoryCorpus(Corpus):
             elif filename.endswith(".json"):
                 self.__load_json(filename, pipeline)
             elif filename.endswith(".csv"):
-                self.__load_csv(filename, pipeline)
+                self.__load_csv_or_tsv(filename, ",", pipeline)
+            elif filename.endswith(".tsv"):
+                self.__load_csv_or_tsv(filename, "\t", pipeline)
             else:
                 raise IOError("Unsupported extension")
 
@@ -110,8 +112,8 @@ class InMemoryCorpus(Corpus):
         the second field (optional) gets named "meta". All other fields are currently ignored.
         """
         document_id = 0
-        with open(filename, mode="r", encoding="utf-8") as f:
-            for line in f:
+        with open(filename, mode="r", encoding="utf-8") as file:
+            for line in file:
                 anonymous_fields = line.strip().split("\t")
                 if len(anonymous_fields) == 1 and not anonymous_fields[0]:
                     continue
@@ -140,20 +142,20 @@ class InMemoryCorpus(Corpus):
 
         dom = parse(filename)
         document_id = 0
-        for body in [__get_text(n.childNodes) for n in dom.getElementsByTagName("doc")]:
+        for body in (__get_text(n.childNodes) for n in dom.getElementsByTagName("doc")):
             document = pipeline(InMemoryDocument(document_id, {"body": body}))
             if document:
                 self.add_document(document)
                 document_id += 1
 
-    def __load_csv(self, filename: str, pipeline: DocumentPipeline) -> None:
+    def __load_csv_or_tsv(self, filename: str, delimiter: str, pipeline: DocumentPipeline) -> None:
         """
         Loads documents from the given UTF-8 encoded CSV file. One document per line.
         """
         import csv
         document_id = 0
-        with open(filename, mode="r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
+        with open(filename, mode="r", encoding="utf-8") as file:
+            reader = csv.DictReader(file, delimiter=delimiter)
             for row in reader:
                 document = pipeline(InMemoryDocument(document_id, dict(row)))
                 if document:
@@ -163,14 +165,14 @@ class InMemoryCorpus(Corpus):
     def __load_json(self, filename: str, pipeline: DocumentPipeline) -> None:
         """
         Loads documents from the given UTF-8 encoded JSON file. One document per line.
-        Lines that do not start with "{" are ignored.
+        Lines that do not start with "{" and end with "}" are ignored.
         """
         from json import loads
         document_id = 0
-        with open(filename, mode="r", encoding="utf-8") as f:
-            for line in f:
+        with open(filename, mode="r", encoding="utf-8") as file:
+            for line in file:
                 line = line.strip()
-                if line.startswith("{"):
+                if line.startswith("{") and line.endswith("}"):
                     named_fields = loads(line)
                     document = pipeline(InMemoryDocument(document_id, named_fields))
                     if document:

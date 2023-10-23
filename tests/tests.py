@@ -27,3 +27,5 @@ from test_variablebytecodec import TestVariableByteCodec
 from test_soundexnormalizer import TestSoundexNormalizer
 from test_porternormalizer import TestPorterNormalizer
 from test_similaritysearchengine import TestSimilaritySearchEngine
+from test_edittable import TestEditTable
+from test_editsearchengine import TestEditSearchEngine

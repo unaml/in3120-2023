@@ -41,7 +41,7 @@ def assignment_x_suite() -> unittest.TestSuite:
                              "TestInMemoryInvertedIndexWithCompression", "TestExpressionComposer",
                              "TestShallowCaseExtractor", "TestDocumentPipeline", "TestSimpleRanker",
                              "TestSoundexNormalizer", "TestPorterNormalizer",
-                             "TestSimilaritySearchEngine"])
+                             "TestSimilaritySearchEngine", "TestEditTable", "TestEditSearchEngine"])
 
 
 def main():

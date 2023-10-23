@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any
+from typing import Dict, List, Any
 
 
 class Document(ABC):
@@ -17,9 +17,25 @@ class Document(ABC):
     def __setitem__(self, field_name: str, field_value: Any) -> None:
         return self.set_field(field_name, field_value)
 
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __str__(self) -> str:
+        return str(self.to_dict())
+
     @property
     def document_id(self) -> int:
+        """
+        Convenience function.
+        """
         return self.get_document_id()
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Facilitates JSON serialization.
+        """
+        fields = dict((name, self.get_field(name, None)) for name in self.get_field_names())
+        return {"document_id": self.get_document_id(), "fields": fields}
 
     @abstractmethod
     def get_document_id(self) -> int:
@@ -44,6 +60,13 @@ class Document(ABC):
         """
         pass
 
+    @abstractmethod
+    def get_field_names(self) -> List[str]:
+        """
+        Returns the names of all the fields that exist in the document.
+        """
+        pass
+
 
 class InMemoryDocument(Document):
     """
@@ -58,9 +81,6 @@ class InMemoryDocument(Document):
         self.__document_id = document_id
         self.__fields = fields
 
-    def __repr__(self):
-        return str({"document_id": self.__document_id, "fields": self.__fields})
-
     def get_document_id(self) -> int:
         return self.__document_id
 
@@ -70,3 +90,6 @@ class InMemoryDocument(Document):
     def set_field(self, field_name: str, field_value: Any) -> None:
         assert field_name is not None
         self.__fields[field_name] = field_value
+
+    def get_field_names(self) -> List[str]:
+        return self.__fields.keys()

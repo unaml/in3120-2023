@@ -22,3 +22,5 @@ from .documentpipeline import DocumentPipeline
 from .soundex import Soundex
 from .porterstemmer import PorterStemmer
 from .similaritysearchengine import SimilaritySearchEngine
+from .edittable import EditTable
+from .editsearchengine import EditSearchEngine
