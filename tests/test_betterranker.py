@@ -11,15 +11,21 @@ class TestBetterRanker(unittest.TestCase):
         normalizer = in3120.SimpleNormalizer()
         tokenizer = in3120.SimpleTokenizer()
         corpus = in3120.InMemoryCorpus()
-        corpus.add_document(in3120.InMemoryDocument(0, {"title": "the foo", "static_quality_score": 0.9}))
-        corpus.add_document(in3120.InMemoryDocument(1, {"title": "the foo", "static_quality_score": 0.2}))
-        corpus.add_document(in3120.InMemoryDocument(2, {"title": "the foo foo", "static_quality_score": 0.2}))
+        corpus.add_document(in3120.InMemoryDocument(
+            0, {"title": "the foo", "static_quality_score": 0.9}))
+        corpus.add_document(in3120.InMemoryDocument(
+            1, {"title": "the foo", "static_quality_score": 0.2}))
+        corpus.add_document(in3120.InMemoryDocument(
+            2, {"title": "the foo foo", "static_quality_score": 0.2}))
         corpus.add_document(in3120.InMemoryDocument(3, {"title": "the bar"}))
-        corpus.add_document(in3120.InMemoryDocument(4, {"title": "the bar bar"}))
+        corpus.add_document(in3120.InMemoryDocument(
+            4, {"title": "the bar bar"}))
         corpus.add_document(in3120.InMemoryDocument(5, {"title": "the baz"}))
         corpus.add_document(in3120.InMemoryDocument(6, {"title": "the baz"}))
-        corpus.add_document(in3120.InMemoryDocument(7, {"title": "the baz baz"}))
-        index = in3120.InMemoryInvertedIndex(corpus, ["title"], normalizer, tokenizer)
+        corpus.add_document(in3120.InMemoryDocument(
+            7, {"title": "the baz baz"}))
+        index = in3120.InMemoryInvertedIndex(
+            corpus, ["title"], normalizer, tokenizer)
         self.__ranker = in3120.BetterRanker(corpus, index)
 
     def test_term_frequency(self):
