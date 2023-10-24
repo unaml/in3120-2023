@@ -20,10 +20,20 @@ class Trie:
     """
 
     def __init__(self):
-        self.__children: Dict[str, Trie] = {}
+        self.__children: Dict[str, Optional[Trie]] = {}
 
     def __repr__(self):
         return repr(self.__children)
+
+    def __contains__(self, string: str):
+        descendant = self.consume(string)
+        return descendant is not None and descendant.is_final()
+
+    def __iter__(self):
+        return self.strings()
+
+    def __getitem__(self, prefix: str):
+        return self.consume(prefix)
 
     def __add(self, string: str) -> None:
         assert 0 < len(string)
@@ -32,7 +42,7 @@ class Trie:
             if symbol not in trie.__children:
                 trie.__children[symbol] = Trie()
             trie = trie.__children[symbol]
-        trie.__children[""] = Trie()
+        trie.__children[""] = None
 
     def add(self, strings: Iterable[str], tokenizer: Tokenizer) -> None:
         """
@@ -45,16 +55,25 @@ class Trie:
 
     def consume(self, prefix: str) -> Optional[Trie]:
         """
-        Consumes the given prefix, verbatim. If strings that have this prefix have been added to
-        the trie, then the trie node corresponding to the prefix is returned. Otherwise, None is returned.
+        Consumes the given prefix verbatim and returns the resulting descendant node,
+        if any. I.e., if strings that have this prefix have been added to the trie, then
+        the trie node corresponding to traversing the prefix is returned. Otherwise, None
+        is returned.
         """
         node = self
         for symbol in prefix:
-            if symbol in node.__children:
-                node = node.__children[symbol]
-            else:
+            node = node.__children.get(symbol, None)
+            if not node:
                 return None
         return node
+
+    def child(self, transition: str) -> Optional[Trie]:
+        """
+        Returns the immediate child node, given a transition symbol. Returns None if the transition
+        symbol is invalid. Functionally equivalent to consume(transition), but simpler and for the
+        special of a single transition symbol and not a longer string.
+        """
+        return self.__children.get(transition, None)
 
     def strings(self) -> Iterator[str]:
         """
@@ -67,7 +86,8 @@ class Trie:
             if node.is_final():
                 yield prefix
             for symbol, child in sorted(node.__children.items(), reverse=True):
-                stack.append((child, prefix + symbol))
+                if child:
+                    stack.append((child, prefix + symbol))
 
     def transitions(self) -> List[str]:
         """

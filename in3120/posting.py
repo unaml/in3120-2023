@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from typing import Dict, Any
+
 
 class Posting:
     """
@@ -11,5 +13,14 @@ class Posting:
         self.document_id = document_id
         self.term_frequency = term_frequency
 
-    def __repr__(self):
-        return str({"document_id": self.document_id, "term_frequency": self.term_frequency})
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __str__(self) -> str:
+        return str(self.to_dict())
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Facilitates JSON serialization.
+        """
+        return {"document_id": self.document_id, "term_frequency": self.term_frequency}
