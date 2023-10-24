@@ -40,20 +40,19 @@ class BetterRanker(Ranker):
         # Calculate document frequency of term
         doc_frequency = self._inverted_index.get_document_frequency(term)
         # Calculate idf score, log of total docs / doc frequency
-        idf_score = math.log(self._corpus.size() /
+        idf_score = math.log(len(self._corpus) /
                              doc_frequency, 2.0) if doc_frequency > 0 else 0.0
+
         # Multiply term-frequency with idf score to get tf-idf score
         tf_idf = term_frequency * idf_score
 
-        # If static_quality_score exists in document, get value, if not, set to 0.0
-        if self._static_score_field_name in self._corpus.get_document(self._document_id).get_field(self._static_score_field_name, ""):
-            static_quality_score = self._corpus.get_document(
-                self._document_id).get_field(self._static_score_field_name, "")
-        else:
-            static_quality_score = 0.0
-
-        self._score = tf_idf * self._dynamic_score_weight + \
-            static_quality_score * self._static_score_weight
+        self._score += tf_idf
 
     def evaluate(self) -> float:
+        # If static_quality_score exists in document, get value, if not, set to 0.0
+        if self._document_id is not None:
+            document = self._corpus.get_document(self._document_id)
+            static_quality_score = document.get_field(
+                self._static_score_field_name, 0.0)
+            return self._score + static_quality_score
         return self._score
